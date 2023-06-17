@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Send Location</title>
+  </head>
+  <body>
+    <button id="send-location-btn">Send Location</button>
+    <script src="https://www.parsecdn.com/js/parse-1.17.1.min.js"></script>
+    <script>
+      Parse.initialize("YOUR_APP_ID", "YOUR_JS_KEY");
+      Parse.serverURL = "https://parseapi.back4app.com/";
+
+      document.getElementById("send-location-btn").addEventListener("click", async () => {
+        if ('geolocation' in navigator) {
+          navigator.geolocation.getCurrentPosition(async (position) => {
+            const { latitude, longitude } = position.coords;
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            const { ip } = await ipResponse.json();
+            const response = await Parse.Cloud.run('sendLocation', { location: `${latitude},${longitude}`, ip });
+            console.log(response);
+          });
+        } else {
+          console.log('Geolocation is not available');
+        }
+      });
+    </script>
+  </body>
+</html>
