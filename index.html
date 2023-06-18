@@ -1,106 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Location Permission Example</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      font-family: Arial, sans-serif;
-    }
-
-    #permission-dialog {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
-  </style>
+  <title>Write Random Number to Gist</title>
 </head>
 <body>
-  <h1>Location Permission Example</h1>
-
-  <div id="permission-dialog">
-    <h2>Allow this site to access your location?</h2>
-    <button id="allow-button">Allow</button>
-    <button id="deny-button">Deny</button>
-  </div>
+  <button onclick="writeRandomNumberToGist()">Write Random Number</button>
 
   <script>
-    // Check if the browser supports Geolocation API
-    if ("geolocation" in navigator) {
-      // Display the permission dialog
-      document.getElementById("permission-dialog").style.display = "flex";
+    function writeRandomNumberToGist() {
+      const randomNumber = Math.floor(Math.random() * 100); // Generate a random number
 
-      // Listen for button clicks
-      document.getElementById("allow-button").addEventListener("click", () => {
-        requestLocationPermission(true);
-      });
+      const gistId = "5288d3cf721045b5b90d7848975f5dba";
+      const accessToken = "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";
 
-      document.getElementById("deny-button").addEventListener("click", () => {
-        requestLocationPermission(false);
-      });
-    } else {
-      // Geolocation API is not supported
-      alert("Geolocation is not supported by your browser.");
-    }
+      const apiUrl = `https://api.github.com/gists/${gistId}/comments`;
 
-    // Function to request location permission and handle the response
-    function requestLocationPermission(allow) {
-      if (allow) {
-        // Request location permission
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            // Send the location to the Back4App cloud function
-            sendLocationToCloudFunction(position.coords.latitude, position.coords.longitude);
-          },
-          (error) => {
-            console.error("Error getting location:", error);
-          }
-        );
-      } else {
-        // User denied location permission or it's not available
-        // Send the IP address to the Back4App cloud function
-        sendLocationToCloudFunction(null, null);
-      }
-
-      // Hide the permission dialog
-      document.getElementById("permission-dialog").style.display = "none";
-    }
-
-    // Function to send location data to the Back4App cloud function
-    function sendLocationToCloudFunction(latitude, longitude) {
-      // Define the request payload
-      const payload = {
-        message: {
-          text: latitude && longitude ? "allow" : "deny",
-          location: {
-            latitude: latitude,
-            longitude: longitude
-          },
-          ip: null
-        }
+      const comment = {
+        body: `Random Number: ${randomNumber}`
       };
 
-      // Make a POST request to the Back4App cloud function
-      fetch("https://parseapi.back4app.com/functions/sendLocation", {
+      fetch(apiUrl, {
         method: "POST",
         headers: {
-          "X-Parse-Application-Id": "ORBsoH5V7XjitvCHfKH0N66xJgiMt0jsKXuxf9m4",
-          "X-Parse-Master-Key": "uuUIhO4OsoIuYa6n7BgQu873RK1fTsRh7O5ILZYj",
+          "Authorization": `token ${accessToken}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(comment)
       })
-      .then(response => response.json())
-      .then(data => {
-        console.log("Cloud function response:", data);
-      })
-      .catch(error => {
-        console.error("Error sending location to cloud function:", error);
-      });
+        .then(response => response.json())
+        .then(data => {
+          console.log("Comment created:", data);
+          alert("Random number written to Gist!");
+        })
+        .catch(error => {
+          console.error("Error creating comment:", error);
+        });
     }
   </script>
 </body>
