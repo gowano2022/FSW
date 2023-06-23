@@ -1,3 +1,5 @@
+import os
+from telegram import Bot, Update
 from telegram.ext import Updater, MessageHandler, Filters
 
 # Set up your Telegram bot token
