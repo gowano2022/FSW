@@ -1,0 +1,9 @@
+version: 1
+services:
+  - name: web
+    port: 3000
+    env:
+      RAILWAY_RUNTIME_NODE_VERSION: 14
+    build:
+      env:
+        RAILWAY_STATIC_OUTPUT: public
