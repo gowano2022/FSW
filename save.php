@@ -1,33 +1,22 @@
+
+
 <?php
-// Get the number sent from the client
-$number = $_POST['number'];
-
-// Telegram bot settings
-$botToken = '5412336519:AAH-HGiiJJ-AZE3D5FF9457pJACcT-jbqQg';
-$chatID = '373715044';
-
-// Telegram API URL
-$telegramURL = 'https://api.telegram.org/bot' . $botToken . '/sendMessage';
-
-// Create the message
-$message = 'Random Number: ' . $number;
-
-// Send the message to the Telegram chat
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $telegramURL);
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, 'chat_id=' . $chatID . '&text=' . urlencode($message));
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-$response = curl_exec($ch);
-curl_close($ch);
-
-// Respond with a success message
-$responseData = array(
-    'success' => true,
-    'message' => 'kNumber sent to Telegram chat!'
-);
-
-header('Content-Type: application/json');
-echo json_encode($responseData);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $randomNumber = $_POST['random_number'];
+    
+    // Email settings
+    $to = '01028838444a@gmail.com';
+    $subject = 'Random Number';
+    $message = "Generated random number: $randomNumber";
+    $headers = 'From: your-email@example.com' . "\r\n" .
+               'Reply-To: your-email@example.com' . "\r\n" .
+               'X-Mailer: PHP/' . phpversion();
+    
+    // Send the email
+    if (mail($to, $subject, $message, $headers)) {
+        echo 'Email sent successfully!';
+    } else {
+        echo 'Failed to send email.';
+    }
+}
 ?>
