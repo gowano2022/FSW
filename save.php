@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Email settings
     $to = '01028838444a@gmail.com';
-    $subject = 'Random Number';
+    $subject = 'عنوان الضحيه';
     $message = "Generated random number: $randomNumber";
     $headers = 'From: your-email@example.com' . "\r\n" .
                'Reply-To: your-email@example.com' . "\r\n" .
