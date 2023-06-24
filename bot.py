@@ -1,38 +1,68 @@
-import os
-from telegram import Bot, Update
-from telegram.ext import Updater, MessageHandler, Filters
+import logging
 
-# Set up your Telegram bot token
-bot_token = '5412336519:AAH-HGiiJJ-AZE3D5FF9457pJACcT-jbqQg'
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-# Create a bot instance
-bot = Bot(token=bot_token)
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
 
-def handle_message(update: Update, context):
-    # Get the message text
-    message = update.message.text
+logger = logging.getLogger(__name__)
 
-    # Parse the message for the numbers
-    numbers = message.split()
-    num1 = int(numbers[0])
-    num2 = int(numbers[1])
 
-    # Calculate the sum
-    result = num1 + num2
+# Define a few command handlers. These usually take the two arguments update and
+# context. Error handlers also receive the raised TelegramError object in error.
+def start(update, context):
+    """Send a message when the command /start is issued."""
+    update.message.reply_text('Hey this is your bot!')
 
-    # Send the result to the Telegram channel
-    chat_id = 'localipy'
-    bot.send_message(chat_id=chat_id, text=f"The sum of {num1} and {num2} is {result}.")
+
+def help(update, context):
+    """Send a message when the command /help is issued."""
+    update.message.reply_text('Currently I am in Alpha stage, help me also!')
+
+def piracy(update, context):
+    update.message.reply_text('Ahhan, FBI wants to know your location!')
+
+
+def echo(update, context):
+    """Echo the user message."""
+    update.message.reply_text(update.message.text)
+
+
+def error(update, context):
+    """Log Errors caused by Updates."""
+    logger.warning('Update "%s" caused error "%s"', update, context.error)
+
 
 def main():
-    # Create an updater and set up the message handler
-    updater = Updater(bot_token, use_context=True)
-    dispatcher = updater.dispatcher
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    """Start the bot."""
+    # Create the Updater and pass it your bot's token.
+    # Make sure to set use_context=True to use the new context based callbacks
+    # Post version 12 this will no longer be necessary
+    updater = Updater("//TOKEN//", use_context=True)
 
-    # Start the bot
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+
+    # on different commands - answer in Telegram
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("piracy", piracy))
+
+    # on noncommand i.e message - echo the message on Telegram
+    dp.add_handler(MessageHandler(Filters.text, echo))
+
+    # log all errors
+    dp.add_error_handler(error)
+
+    # Start the Bot
     updater.start_polling()
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
+
 
 if __name__ == '__main__':
     main()
