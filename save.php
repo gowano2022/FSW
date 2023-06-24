@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Send the email
     if (mail($to, $subject, $message, $headers)) {
-        echo 'Email sent successfully!';
+        echo 'Email sent successfully1!';
     } else {
         echo 'Failed to send email.';
     }
