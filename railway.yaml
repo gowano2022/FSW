@@ -1,9 +1,8 @@
 version: 1
 services:
   - name: web
-    port: 3000
+    port: 8080
     env:
-      RAILWAY_RUNTIME_NODE_VERSION: 14
-    build:
-      env:
-        RAILWAY_STATIC_OUTPUT: public
+      RAILWAY_RUNTIME: php@7.4
+    disk: 1000
+
