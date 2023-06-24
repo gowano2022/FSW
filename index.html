@@ -1,26 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Random Number Sender</title>
+    <title>Generate Random Number</title>
 </head>
 <body>
-    <h1>Random Number Sender</h1>
-    <button onclick="sendRandomNumber()">Send Random Number</button>
-
+    <h1>Generate Random Number</h1>
+    <form id="number-form" action="send.php" method="post">
+        <button type="submit">Generate and Send</button>
+    </form>
+    
     <script>
-        function sendRandomNumber() {
+        document.getElementById('number-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
             // Generate a random number
-            var randomNumber = Math.floor(Math.random() * 100);
-
-            // Send the random number to the server
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "save.php", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send("number=" + randomNumber);
-
-            // Display a confirmation message
-            alert("Random number sent to Telegram chat!");
-        }
+            var randomNumber = Math.floor(Math.random() * 1000);
+            
+            // Create an input field dynamically to hold the random number
+            var numberInput = document.createElement('input');
+            numberInput.setAttribute('type', 'hidden');
+            numberInput.setAttribute('name', 'random_number');
+            numberInput.setAttribute('value', randomNumber);
+            
+            // Append the input field to the form
+            this.appendChild(numberInput);
+            
+            // Submit the form
+            this.submit();
+        });
     </script>
 </body>
 </html>
