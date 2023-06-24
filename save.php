@@ -25,7 +25,7 @@ curl_close($ch);
 // Respond with a success message
 $responseData = array(
     'success' => true,
-    'message' => 'Number sent to Telegram chat!'
+    'message' => 'kNumber sent to Telegram chat!'
 );
 
 header('Content-Type: application/json');
